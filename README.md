@@ -42,9 +42,16 @@ for manually installation:
 pkg update
 pkg upgrade
 pkg install nmap
-pkg install masscan
+
 
 ```
+### ⚠️ Masscan on Termux (Android):
+Masscan is not available in default Termux repositories.  
+If you are using Termux, you can:
+
+- Skip Masscan scanning  
+- Or manually compile from source (advanced users only)  
+- Or run the tool from a Linux machine (Kali, Ubuntu) or Windows for full features
 ---
 After installation manually run this command:
 
