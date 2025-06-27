@@ -33,7 +33,8 @@ def install_masscan():
         else:
             print("[!] Unsupported OS for automatic Masscan installation.")
     except Exception as e:
-        print(f"[-] Error installing Masscan: {e}")def nmap_scan(target_ip):
+        print(f"[-] Error installing Masscan: {e}")
+        def nmap_scan(target_ip):
     print(f"[+] Running Nmap scan on {target_ip}...")
     try:
         subprocess.run(["nmap", "-sS", "-sV", "-T4", target_ip])
