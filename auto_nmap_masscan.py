@@ -29,9 +29,7 @@ def install_nmap():
 def install_masscan():
     print("[+] Installing Masscan...")
     try:
-        if is_termux():
-            print("[!] Masscan is not available on Termux. Skipping Masscan installation.")
-        elif platform.system() == "Linux":
+        if platform.system() == "Linux":
             subprocess.run(["sudo", "apt", "install", "masscan", "-y"], check=True)
         elif platform.system() == "Windows":
             print("[!] Please install Masscan manually from: https://github.com/robertdavidgraham/masscan")
