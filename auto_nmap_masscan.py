@@ -2,6 +2,7 @@ import subprocess
 import os
 import shutil
 import platform
+import sys
 
 def is_tool_installed(tool):
     return shutil.which(tool) is not None
@@ -14,12 +15,11 @@ def install_nmap():
         elif platform.system() == "Linux":
             subprocess.run(["sudo", "apt", "install", "nmap", "-y"], check=True)
         elif platform.system() == "Windows":
-            print("[!] Please install Nmap manually from https://nmap.org/download.html")
+            print("[!] Please install Nmap manually from: https://nmap.org/download.html")
         else:
             print("[!] Unsupported OS for automatic Nmap installation.")
     except Exception as e:
         print(f"[-] Error installing Nmap: {e}")
-
 
 def install_masscan():
     print("[+] Installing Masscan...")
@@ -29,48 +29,55 @@ def install_masscan():
         elif platform.system() == "Linux":
             subprocess.run(["sudo", "apt", "install", "masscan", "-y"], check=True)
         elif platform.system() == "Windows":
-            print("[!] Please install Masscan manually from https://github.com/robertdavidgraham/masscan")
+            print("[!] Please install Masscan manually from: https://github.com/robertdavidgraham/masscan")
         else:
             print("[!] Unsupported OS for automatic Masscan installation.")
     except Exception as e:
         print(f"[-] Error installing Masscan: {e}")
-        def nmap_scan(target_ip):
-    print(f"[+] Running Nmap scan on {target_ip}...")
+
+def nmap_scan(target_ip):
+    print(f"\n[+] Running Nmap scan on {target_ip}...\n")
     try:
-        subprocess.run(["nmap", "-sS", "-sV", "-T4", target_ip])
+        result = subprocess.run(["nmap", "-sS", "-sV", "-T4", target_ip], capture_output=True, text=True, check=True)
+        print("[+] Nmap Scan Result:\n")
+        print(result.stdout)
     except Exception as e:
         print(f"[-] Error running Nmap: {e}")
 
 def masscan_scan(target_ip):
-    print(f"[+] Running Masscan scan on {target_ip}...")
+    print(f"\n[+] Running Masscan scan on {target_ip}...\n")
     try:
-        subprocess.run(["sudo", "masscan", target_ip, "-p1-65535", "--rate", "1000"])
+        if "Android" in os.uname().release:
+            result = subprocess.run(["masscan", target_ip, "-p1-65535", "--rate", "1000"], capture_output=True, text=True, check=True)
+        else:
+            result = subprocess.run(["sudo", "masscan", target_ip, "-p1-65535", "--rate", "1000"], capture_output=True, text=True, check=True)
+        print("[+] Masscan Scan Result:\n")
+        print(result.stdout)
     except Exception as e:
         print(f"[-] Error running Masscan: {e}")
 
 def main():
     print("=== Multi-Stage IP Scanner: Nmap → Masscan ===\n")
 
-    # Tool Check: Nmap
+    # Check Nmap
     if not is_tool_installed("nmap"):
         install_nmap()
     else:
         print("[+] Nmap is already installed.")
 
-    # Tool Check: Masscan
+    # Check Masscan
     if not is_tool_installed("masscan"):
         install_masscan()
     else:
         print("[+] Masscan is already installed.")
 
-    # Now ask for IP
-    target_ip = input("\nEnter target IP to scan: ")
+    target_ip = input("\n[?] Enter target IP address to scan: ").strip()
 
-    # Run Scans
-    nmap_scan(target_ip)
-    masscan_scan(target_ip)
-
-    print("\n[+] Scanning complete!")
+    if target_ip:
+        nmap_scan(target_ip)
+        masscan_scan(target_ip)
+    else:
+        print("[!] No IP entered. Exiting...")
 
 if __name__ == "__main__":
     main()
