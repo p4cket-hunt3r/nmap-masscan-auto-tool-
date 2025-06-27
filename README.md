@@ -35,6 +35,7 @@ python3 auto_nmap_masscan.py
 ```
 git clone https://github.com/p4cket-hunt3r/Multi-scanner-nmap-masscan.git
 cd Multi-scanner-nmap-masscan
+chmod +x auto_nmap_masscan.py
 python auto_nmap_masscan.py
 ```
 
