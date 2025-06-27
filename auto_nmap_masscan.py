@@ -57,7 +57,7 @@ def masscan_scan(target_ip):
         print("[!] Skipping Masscan scan: Masscan is not available on Termux.")
         return
 
-    print(f"\n[+] Running Masscan scan on {target_ip}...\n")
+    
     try:
         if platform.system() == "Linux":
             result = subprocess.run(["sudo", "masscan", target_ip, "-p1-65535", "--rate", "1000"], capture_output=True, text=True, check=True)
