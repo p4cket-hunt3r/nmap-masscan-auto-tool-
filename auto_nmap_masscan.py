@@ -25,7 +25,7 @@ def install_masscan():
     print("[+] Installing Masscan...")
     try:
         if "Android" in os.uname().release:
-            subprocess.run(["pkg", "install", "masscan", "-y"], check=True)
+            print("[!] Masscan is not available in Termux pkg repositories. Skipping Masscan installation.")
         elif platform.system() == "Linux":
             subprocess.run(["sudo", "apt", "install", "masscan", "-y"], check=True)
         elif platform.system() == "Windows":
@@ -45,12 +45,20 @@ def nmap_scan(target_ip):
         print(f"[-] Error running Nmap: {e}")
 
 def masscan_scan(target_ip):
+    if "Android" in os.uname().release:
+        print("[!] Skipping Masscan scan on Termux (Masscan not available).")
+        return
+
     print(f"\n[+] Running Masscan scan on {target_ip}...\n")
     try:
-        if "Android" in os.uname().release:
+        if platform.system() == "Linux":
+            result = subprocess.run(["sudo", "masscan", target_ip, "-p1-65535", "--rate", "1000"], capture_output=True, text=True, check=True)
+        elif platform.system() == "Windows":
             result = subprocess.run(["masscan", target_ip, "-p1-65535", "--rate", "1000"], capture_output=True, text=True, check=True)
         else:
-            result = subprocess.run(["sudo", "masscan", target_ip, "-p1-65535", "--rate", "1000"], capture_output=True, text=True, check=True)
+            print("[!] Unsupported OS for running Masscan.")
+            return
+
         print("[+] Masscan Scan Result:\n")
         print(result.stdout)
     except Exception as e:
@@ -66,8 +74,10 @@ def main():
         print("[+] Nmap is already installed.")
 
     # Check Masscan
-    if not is_tool_installed("masscan"):
+    if not is_tool_installed("masscan") and "Android" not in os.uname().release:
         install_masscan()
+    elif "Android" in os.uname().release:
+        print("[!] Skipping Masscan check on Termux (not available).")
     else:
         print("[+] Masscan is already installed.")
 
