@@ -2,15 +2,20 @@ import subprocess
 import os
 import shutil
 import platform
-import sys
 
 def is_tool_installed(tool):
     return shutil.which(tool) is not None
 
+def is_termux():
+    try:
+        return "Android" in os.uname().release
+    except AttributeError:
+        return False
+
 def install_nmap():
     print("[+] Installing Nmap...")
     try:
-        if "Android" in os.uname().release:
+        if is_termux():
             subprocess.run(["pkg", "install", "nmap", "-y"], check=True)
         elif platform.system() == "Linux":
             subprocess.run(["sudo", "apt", "install", "nmap", "-y"], check=True)
@@ -24,8 +29,8 @@ def install_nmap():
 def install_masscan():
     print("[+] Installing Masscan...")
     try:
-        if "Android" in os.uname().release:
-            print("[!] Masscan is not available in Termux pkg repositories. Skipping Masscan installation.")
+        if is_termux():
+            print("[!] Masscan is not available on Termux. Skipping Masscan installation.")
         elif platform.system() == "Linux":
             subprocess.run(["sudo", "apt", "install", "masscan", "-y"], check=True)
         elif platform.system() == "Windows":
@@ -38,15 +43,20 @@ def install_masscan():
 def nmap_scan(target_ip):
     print(f"\n[+] Running Nmap scan on {target_ip}...\n")
     try:
-        result = subprocess.run(["nmap", "-sS", "-sV", "-T4", target_ip], capture_output=True, text=True, check=True)
+        if is_termux():
+            # On Termux (Android), use TCP Connect Scan (-sT)
+            result = subprocess.run(["nmap", "-sT", "-sV", "-T4", target_ip], capture_output=True, text=True, check=True)
+        else:
+            # On Linux/Windows, use SYN Scan (-sS)
+            result = subprocess.run(["nmap", "-sS", "-sV", "-T4", target_ip], capture_output=True, text=True, check=True)
         print("[+] Nmap Scan Result:\n")
         print(result.stdout)
-    except Exception as e:
-        print(f"[-] Error running Nmap: {e}")
+    except subprocess.CalledProcessError as e:
+        print(f"[-] Error running Nmap:\n{e.stderr}")
 
 def masscan_scan(target_ip):
-    if "Android" in os.uname().release:
-        print("[!] Skipping Masscan scan on Termux (Masscan not available).")
+    if is_termux():
+        print("[!] Skipping Masscan scan: Masscan is not available on Termux.")
         return
 
     print(f"\n[+] Running Masscan scan on {target_ip}...\n")
@@ -61,8 +71,8 @@ def masscan_scan(target_ip):
 
         print("[+] Masscan Scan Result:\n")
         print(result.stdout)
-    except Exception as e:
-        print(f"[-] Error running Masscan: {e}")
+    except subprocess.CalledProcessError as e:
+        print(f"[-] Error running Masscan:\n{e.stderr}")
 
 def main():
     print("=== Multi-Stage IP Scanner: Nmap → Masscan ===\n")
@@ -74,9 +84,9 @@ def main():
         print("[+] Nmap is already installed.")
 
     # Check Masscan
-    if not is_tool_installed("masscan") and "Android" not in os.uname().release:
+    if not is_tool_installed("masscan") and not is_termux():
         install_masscan()
-    elif "Android" in os.uname().release:
+    elif is_termux():
         print("[!] Skipping Masscan check on Termux (not available).")
     else:
         print("[+] Masscan is already installed.")
