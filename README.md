@@ -32,6 +32,21 @@ python3 auto_nmap_masscan.py
 ---
 
 ✅ On Termux (Android):
+before cloning :-
+please install nmap & masscan
+tool didn't install automatically nmap & masscan for termux 
+---
+for manually installation:
+```
+pkg update
+pkg upgrade
+pkg install nmap
+pkg install masscan
+
+```
+---
+After installation manually run this command:
+
 ```
 git clone https://github.com/p4cket-hunt3r/Multi-scanner-nmap-masscan.git
 cd Multi-scanner-nmap-masscan
